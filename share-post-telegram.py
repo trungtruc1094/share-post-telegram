@@ -151,7 +151,7 @@ def main():
     
     try:
         # Step 3: Send the URL to each group
-        send_url_to_groups(driver, sharing_url)
+        send_url_to_groups(driver, latest_url)
     finally:
         # Step 6: Close the browser
         logging.info("Closing browser...")
