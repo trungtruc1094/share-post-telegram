@@ -101,9 +101,18 @@ def human_like_delay(min_seconds=1, max_seconds=3):
     """Introduce a random delay to simulate human-like actions."""
     time.sleep(random.uniform(min_seconds, max_seconds))
 
+def create_screenshot_folder():
+    """Create a folder named with the current date for storing screenshots."""
+    today = datetime.today().strftime('%d-%m-%Y')
+    folder_path = os.path.join(os.getcwd(), today)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    return folder_path
+
 # Step 3: Send the URL to each group
 def send_url_to_groups(driver, sharing_url):
     group_urls = get_telegram_urls()
+    screenshot_folder = create_screenshot_folder()  # Create screenshot folder
     for i, group_url in enumerate(group_urls):
         try:
             logging.info(f"Opening group URL: {group_url}")
@@ -117,6 +126,17 @@ def send_url_to_groups(driver, sharing_url):
                 driver.get(group_url)  # Open the group URL in the new tab
             
             human_like_delay(4, 6)  # Wait for the group chat to load
+
+            # Step 4: Check for and click the "Go to bottom" button if it exists
+            try:
+                go_to_bottom_button = WebDriverWait(driver, 5).until(
+                    EC.element_to_be_clickable((By.XPATH, '//*[@id="MiddleColumn"]/div[4]/div[3]/div[3]/button'))
+                )
+                go_to_bottom_button.click()
+                logging.info("Clicked 'Go to bottom' button.")
+                human_like_delay(1, 2)
+            except Exception:
+                logging.info("'Go to bottom' button not found or already at the bottom.")
             
             # Step 4: Detect the input message element and send the URL
             input_box = WebDriverWait(driver, 20).until(
@@ -137,7 +157,7 @@ def send_url_to_groups(driver, sharing_url):
 
         except Exception as e:
             logging.error(f"Error processing group URL '{group_url}': {e}")
-            screenshot_path = f"screenshot_error_{i}.png"
+            screenshot_path = os.path.join(screenshot_folder, f"screenshot_error_{i}.png")
             driver.save_screenshot(screenshot_path)
             logging.info(f"Screenshot taken and saved as {screenshot_path}")
 
