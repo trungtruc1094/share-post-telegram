@@ -3,10 +3,28 @@ import logging
 import psutil
 import requests
 import random
+import platform
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+def detect_system():
+    system = platform.system()
+    architecture = platform.machine()
+
+    if system == "Darwin":
+        if architecture == "arm64":
+            logging.info("Running on Mac with M1 (Apple Silicon).")
+        else:
+            logging.info("Running on Mac with Intel architecture.")
+    elif system == "Windows":
+        logging.info("Running on Windows PC.")
+    else:
+        logging.info(f"Running on {system} with {architecture} architecture.")
+    
+    return system, architecture
 
 def kill_process_by_name(process_name):
     """Kill all processes by name."""
@@ -37,19 +55,28 @@ group_urls = []
 
 # Step 2: Initialize the WebDriver with a specific Chrome profile in headless mode
 def initialize_webdriver():
+    # Detect system and platform
+    system, architecture = detect_system()
+
     # Kill any residual Chrome or ChromeDriver processes
-    kill_process_by_name("Google Chrome")
-    kill_process_by_name("chromedriver")
+    if system == "Darwin":
+        kill_process_by_name("Google Chrome")
+        kill_process_by_name("chromedriver")
+    elif system == "Windows":
+        kill_process_by_name("chrome.exe")
+        kill_process_by_name("chromedriver.exe")
 
     options = webdriver.ChromeOptions()
     
-    # Set the path to your Chrome profile on mac m1
-    # chrome_user_data_dir = "/Users/mac/Library/Application Support/Google/Chrome"  # Update with your actual username
-    # chrome_profile = "Profile 6"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
-
-    # Set the path to your Chrome profile on windows 10 pc
-    chrome_user_data_dir = "C:\\Users\\trung\\AppData\\Local\\Google\\Chrome\\User Data"  # Update with your actual username
-    chrome_profile = "Profile 32"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
+    # Set the path to your Chrome profile on system and platform
+    if system == "Darwin":
+        # Set the path to your Chrome profile on mac m1
+        chrome_user_data_dir = "/Users/mac/Library/Application Support/Google/Chrome"  # Update with your actual username
+        chrome_profile = "Profile 6"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
+    elif system == "Windows":
+        # Set the path to your Chrome profile on windows 10 pc
+        chrome_user_data_dir = "C:\\Users\\trung\\AppData\\Local\\Google\\Chrome\\User Data"  # Update with your actual username
+        chrome_profile = "Profile 32"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
     
     options.add_argument(f"user-data-dir={chrome_user_data_dir}")
     options.add_argument(f"profile-directory={chrome_profile}")
