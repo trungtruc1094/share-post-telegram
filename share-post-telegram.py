@@ -76,8 +76,8 @@ def initialize_webdriver():
         chrome_profile = "Profile 6"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
     elif system == "Windows":
         # Set the path to your Chrome profile on windows 10 pc
-        chrome_user_data_dir = "C:\\Users\\trung\\AppData\\Local\\Google\\Chrome\\User Data"  # Update with your actual username
-        chrome_profile = "Profile 32"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
+        chrome_user_data_dir = "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data"  # Update with your actual username
+        chrome_profile = "Default"  # Replace with your actual profile folder name (e.g., "Profile 1", "Default", etc.)
     
     options.add_argument(f"user-data-dir={chrome_user_data_dir}")
     options.add_argument(f"profile-directory={chrome_profile}")
